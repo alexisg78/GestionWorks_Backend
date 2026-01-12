@@ -28,66 +28,12 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
-  @Get('private')
-  @UseGuards( AuthGuard() )
-  testingPrivateRoute( 
-    // @Req() request: Express.Request,
-    @GetUser() user: User,
-    @GetUser('email') userEmail: string,
-    // @GetRawHeaders('rawHeaders') rawHeaders: string[], // Decorador personalizado.
-    @Headers() headers: IncomingHttpHeaders
-  ){
-    
-    // console.log( request )
-    return {
-      ok: true,
-      message: 'Hola mundo Private',
-      user,
-      userEmail,
-      headers
-      // rawHeaders
-    }
-  }
-
-  // @Get('private2')
-  // @SetMetadata('roles', ['admin', 'super-user'])     // Esta linea se puede mejorar para no cometer errores al pasar los argumentos de la metadata
-  // @UseGuards( AuthGuard(), UserRoleGuard )
-  // privateRoute2(
-  //   @GetUser() user: User
-  // ){
-
-  //   return {
-  //     ok: true,
-  //     user
-  //   }
-  // }
-
-  
-  // Custom Decorator - RoleProtected
-  @Get('private2')
-  @RoleProtected( ValidRoles.superUser )
-  @UseGuards( AuthGuard(), UserRoleGuard )
-  privateRoute2(
+  @Get('check-status')
+  @Auth()
+  checkTokenUser(
     @GetUser() user: User
-  ){
-
-    return {
-      ok: true,
-      user
-    }
+  ) {
+    return this.authService.checkAuthStatus(user);
   }
-
-
-  @Get('private3')
-  @Auth( ValidRoles.admin, ValidRoles.superUser )
-  privateRoute3(
-    @GetUser() user: User
-  ){
-    
-    return {
-      ok: true,
-      user
-    }
-  }  
 
 }

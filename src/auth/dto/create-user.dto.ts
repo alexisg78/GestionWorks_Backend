@@ -1,5 +1,4 @@
-import { IsEmail, IsString, Matches, MaxLength, MinLength } from "class-validator";
-
+import { IsArray, IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
 
 export class CreateUserDto {
 
@@ -19,5 +18,10 @@ export class CreateUserDto {
   @IsString()
   @MinLength(1)
   fullName: string;
+
+  @IsString({ each: true }) // 1. Valida que CADA item del array sea un string
+  @IsArray()                // 2. Valida que la propiedad en sí misma sea un array
+  @IsOptional()             // 3. Opcional, porque en tu Entity ya tienes un default
+  roles?: string[];
 
 }

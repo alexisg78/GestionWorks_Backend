@@ -11,6 +11,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 
+
 @Injectable()
 export class AuthService {
   
@@ -52,8 +53,8 @@ export class AuthService {
     const { email, password } = loginUserDto;
 
     const user = await this.userRepository.findOne({
+      select: { email: true, password: true, fullName: true, isActive: true, roles: true, id: true, },
       where: { email },
-      select: { email: true, password: true, id: true }
     });
 
     if ( !user )
@@ -62,6 +63,17 @@ export class AuthService {
     if ( !bcrypt.compareSync( password, user.password) )
       throw new UnauthorizedException('Credentials are not valid (password)')
 
+    const { id, ...userResponse } = user
+    
+    return {
+      ...userResponse,
+      token: this.getJwt({ id })
+    }
+    
+  }
+
+  async checkAuthStatus( user: User ){
+    
     return {
       ...user,
       token: this.getJwt({ id: user.id })
@@ -81,7 +93,7 @@ export class AuthService {
     if ( error.code === '23505' )
       throw new BadRequestException( error.detail );
 
-    console.log(error);
+    // console.log(error);
 
     throw new InternalServerErrorException('Please check server logs')
 

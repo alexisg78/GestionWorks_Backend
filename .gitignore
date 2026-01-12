@@ -4,6 +4,7 @@
 /build
 
 postgres/
+postgres-gestionworks/
 
 # Logs
 logs
