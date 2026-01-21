@@ -9,6 +9,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 
 
@@ -70,6 +71,23 @@ export class AuthService {
       token: this.getJwt({ id })
     }
     
+  }
+
+  async getUsers(paginationDto: PaginationDto){
+
+    const { limit= 10, offset= 0 } = paginationDto
+
+    const users = await this.userRepository.find({
+      
+      take: limit,
+      skip: offset,
+
+    })
+
+    return users.map( ( user ) => ({
+      ...user,
+    }))    
+
   }
 
   async checkAuthStatus( user: User ){

@@ -1,9 +1,9 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Product } from "./product.entity";
+import { Ticket } from "./ticket.entity";
 
 
-@Entity({name:'product_images'})
-export class ProductImage {
+@Entity({name:'ticket_images'})
+export class TicketImage {
 
   @PrimaryGeneratedColumn()
   id: number;
@@ -12,10 +12,10 @@ export class ProductImage {
   url: string;
 
   @ManyToOne(
-    () => Product,
-    (product) => product.images,
+    () => Ticket,
+    (ticket) => ticket.images,
     { nullable: true, onDelete: "CASCADE" }   
   )
-  product: Product
+  ticket: Ticket
 
 }

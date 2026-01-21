@@ -1,18 +1,11 @@
-import { IncomingHttpHeaders } from 'http';
-import { Controller, Get, Post, Body, UseGuards, Req, Headers, SetMetadata } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 
-import { GetUser, RoleProtected, Auth, GetRawHeaders } from './decorators'
-// import { GetUser } from './decorators/get-user.decorator';
-// import { GetRawHeaders } from './decorators/get-rawHeaders.decorator'; // En teoria deberia ir en los common porque es mas generico
+import { GetUser, Auth } from './decorators'
 
 import { User } from './entities/user.entity';
-
-import { UserRoleGuard } from './guards/user-role.guard';
-import { ValidRoles } from './interfaces';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +19,11 @@ export class AuthController {
   @Post('login')
   loginUser(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
+  }
+
+  @Get('users')
+  findAll( @Query() paginationDto: PaginationDto ) {
+    return this.authService.getUsers( paginationDto );
   }
 
   @Get('check-status')
