@@ -1,13 +1,17 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+
 import { TicketService } from './ticket.service';
+import { User } from 'src/auth/entities/user.entity';
+
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { Auth } from '../auth/decorators/auth.decorator';
+import { AssignTicketDto } from './dto/assignTicket.dto';
+import { ChangePriorityDto } from './dto/changePriority.dto';
+
 import { ValidRoles } from '../auth/interfaces/valid-roles';
-import { AssignTicketDto } from './dto/assignTicket.dto.js';
-import { ChangePriorityDto } from './dto/changePriority.dto.js';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { Auth } from '../auth/decorators/auth.decorator';
 
 @Controller('tickets')
 export class TicketController {
@@ -15,8 +19,11 @@ export class TicketController {
 
   @Post()
   @Auth()
-  create(@Body() createTicketDto: CreateTicketDto) {
-    return this.ticketService.create(createTicketDto);
+  create(
+    @Body() createTicketDto: CreateTicketDto,
+    @GetUser() user: User
+  ) {
+    return this.ticketService.create(createTicketDto, user);
   }
 
   @Get()
@@ -25,6 +32,7 @@ export class TicketController {
   }
 
   @Get(':term')
+  @Auth()
   findOne(@Param('term') term: string) {
  
     // return this.ticketService.findOne(term);

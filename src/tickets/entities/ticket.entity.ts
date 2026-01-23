@@ -1,7 +1,8 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { TicketImage } from "./ticket-Image.entity";
 
 import { ValidStatus, ValidPriority } from "../interfaces";
+import { User } from "src/auth/entities/user.entity";
 
 
 @Entity({name:'tickets'})
@@ -35,6 +36,12 @@ export class Ticket {
   })
   priority: ValidPriority
   
+  @ManyToOne(
+    () => User,
+    (user) => user.tickets
+  )
+  user: User
+
   // images
   @OneToMany(
     () => TicketImage,

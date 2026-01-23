@@ -7,11 +7,12 @@ import { isUUID } from 'class-validator';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { AssignTicketDto } from './dto/assignTicket.dto';
+import { ChangePriorityDto } from './dto/changePriority.dto';
 
 import { Ticket } from './entities/ticket.entity';
 import { TicketImage } from './entities/ticket-Image.entity';
-import { AssignTicketDto } from './dto/assignTicket.dto.js';
-import { ChangePriorityDto } from './dto/changePriority.dto.js';
+import { User } from 'src/auth/entities/user.entity';
 
 
 @Injectable()
@@ -31,20 +32,22 @@ export class TicketService {
   
   ){}
   
-  async create(createTicketDto: CreateTicketDto) {
+  async create(createTicketDto: CreateTicketDto, user: User) {
     
     try {
 
       const { images= [], ...ticketDetails } = createTicketDto;
-
+      
       const ticket = this.ticketRepository.create({
         ...ticketDetails,
         images: images.map( (image) => this.ticketImageRepository.create({ url: image }) )
       });
 
-      await this.ticketRepository.save( ticket );
       
-      return { ...ticket, images }
+      const dataTicket= await this.ticketRepository.save( {...ticket, user} );
+      
+      const { user: dataUser, ...restData } = dataTicket
+      return { ...restData, userId: dataUser.id }
 
     } catch (error) {
       
