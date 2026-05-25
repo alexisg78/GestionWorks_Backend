@@ -1,9 +1,6 @@
-import { IsUUID } from "class-validator";
-
+import { IsUUID } from 'class-validator';
 
 export class AssignTicketDto {
-  
   @IsUUID()
-  userId: 'string'
-
+  userId!: 'string';
 }
