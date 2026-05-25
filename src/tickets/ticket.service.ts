@@ -63,12 +63,14 @@ export class TicketService {
       relations: {
         images: true,
         user: true,
+        assignedUser: true,
       },
     });
 
     return tickets.map((ticket) => ({
       ...ticket,
       user: ticket.user?.id ?? null,
+      assignedUser: ticket.assignedUser?.id ?? null,
       images: ticket.images?.map((img) => img.url),
     }));
   }
@@ -77,7 +79,10 @@ export class TicketService {
     let ticket: Ticket | null = null;
 
     if (isUUID(term)) {
-      ticket = await this.ticketRepository.findOneBy({ id: term });
+      ticket = await this.ticketRepository.findOne({
+        where: { id: term },
+        relations: { images: true, user: true, assignedUser: true },
+      });
     } else {
       const queryBuilder = this.ticketRepository.createQueryBuilder('ticket');
 
@@ -86,6 +91,7 @@ export class TicketService {
           title: term.toLowerCase(),
         })
         .leftJoinAndSelect('ticket.images', 'ticketImages')
+        .leftJoinAndSelect('ticket.assignedUser', 'assignedUser')
         .getOne();
     }
 
@@ -95,10 +101,25 @@ export class TicketService {
   }
 
   async findOnePlain(term: string) {
-    const { images = [], ...restTicket } = await this.findOne(term);
+    const {
+      images = [],
+      user,
+      assignedUser,
+      ...restTicket
+    } = await this.findOne(term);
+
+    // Función para limpiar los datos del usuario de forma segura
+    const sanitizeUser = (userEntity?: User | null) => {
+      if (!userEntity) return null;
+
+      const { isActive, password, roles, tickets, ...safeUser } = userEntity;
+      return safeUser;
+    };
 
     return {
       ...restTicket,
+      user: sanitizeUser(user), // Siempre debería existir, pero lo pasamos por seguridad
+      assignedUser: sanitizeUser(assignedUser),
       images: images.map((img) => img.url),
     };
   }
@@ -144,13 +165,25 @@ export class TicketService {
     await this.ticketRepository.remove(ticket);
   }
 
-  async close(id: string) {}
+  async assign(id: string, assignTicketDto: AssignTicketDto) {
+    // preload para preparar la actualización del ticket.
+    // Le pasamos el ID del ticket y construimos el objeto assignedUser con el ID que viene del DTO.
+    const ticket = await this.ticketRepository.preload({
+      id: id,
+      assignedUser: { id: assignTicketDto.userId } as User,
+    });
 
-  async reopen(id: string) {}
+    if (!ticket) {
+      throw new NotFoundException(`Ticket with id: ${id} not found`);
+    }
 
-  async assign(id: string, idAssign: AssignTicketDto) {}
-
-  async changePriority(id: string, priority: ChangePriorityDto) {}
+    try {
+      await this.ticketRepository.save(ticket);
+      return this.findOnePlain(id); // Devolvemos el ticket actualizado y limpio
+    } catch (error) {
+      this.handleDbExeptions(error);
+    }
+  }
 
   async deletAllTickets() {
     const query = await this.ticketRepository.createQueryBuilder('ticket');
@@ -165,9 +198,24 @@ export class TicketService {
   private handleDbExeptions(error: any) {
     if (error.code === '23505') throw new BadRequestException(error.detail);
 
+    // Error 23503: Foreign key violation (ej. asignar un ticket a un usuario que no existe)
+    if (error.code === '23503')
+      throw new BadRequestException(
+        `Related record not found: ${error.detail}`,
+      );
+
     this.logger.error(error.message);
     throw new InternalServerErrorException(
       'Unexpected error, check server logs',
     );
   }
+
+  // TODO: CLOSE
+  async close(id: string) {}
+
+  // TODO: REOPEN
+  async reopen(id: string) {}
+
+  // TODO: CHANGEPRIORITY
+  async changePriority(id: string, priority: ChangePriorityDto) {}
 }

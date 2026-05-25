@@ -1,10 +1,9 @@
 import {
   Column,
   Entity,
-  ManyToMany,
+  JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { TicketImage } from './ticket-Image.entity';
@@ -42,8 +41,12 @@ export class Ticket {
   })
   priority!: ValidPriority;
 
-  @ManyToOne(() => User, (user) => user.tickets)
+  @ManyToOne(() => User, (user) => user.tickets, { nullable: false })
   user?: User;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'assigned_user_id' })
+  assignedUser?: User;
 
   // images
   @OneToMany(() => TicketImage, (ticketImage) => ticketImage.ticket, {

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseUUIDPipe,
+  Query,
+} from '@nestjs/common';
 
 import { TicketService } from './ticket.service';
 import { User } from 'src/auth/entities/user.entity';
@@ -19,39 +29,35 @@ export class TicketController {
 
   @Post()
   @Auth()
-  create(
-    @Body() createTicketDto: CreateTicketDto,
-    @GetUser() user: User
-  ) {
+  create(@Body() createTicketDto: CreateTicketDto, @GetUser() user: User) {
     return this.ticketService.create(createTicketDto, user);
   }
 
   @Get()
-  findAll( @Query() paginationDto: PaginationDto ) {
-    return this.ticketService.findAll( paginationDto );
+  @Auth()
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.ticketService.findAll(paginationDto);
   }
 
   @Get(':term')
   @Auth()
   findOne(@Param('term') term: string) {
- 
     // return this.ticketService.findOne(term);
     return this.ticketService.findOnePlain(term);
- 
   }
 
   @Patch(':id')
   @Auth()
   update(
-    @Param( 'id', ParseUUIDPipe ) id: string,  
-    @Body() updateTicketDto: UpdateTicketDto
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateTicketDto: UpdateTicketDto,
   ) {
-    return this.ticketService.update( id, updateTicketDto);
+    return this.ticketService.update(id, updateTicketDto);
   }
 
   @Delete(':id')
-  @Auth( ValidRoles.admin )
-  remove(@Param('id', ParseUUIDPipe ) id: string) {
+  @Auth(ValidRoles.admin)
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.ticketService.remove(id);
   }
 
@@ -86,6 +92,4 @@ export class TicketController {
   ) {
     return this.ticketService.changePriority(id, changePriorityDto);
   }
-
-
 }
