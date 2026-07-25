@@ -36,19 +36,22 @@ export class TicketService {
 
   async create(createTicketDto: CreateTicketDto, user: User) {
     try {
-      const { images = [], ...ticketDetails } = createTicketDto;
+      const { images = [], assignedUserId, ...ticketDetails } = createTicketDto;
 
       const ticket = this.ticketRepository.create({
         ...ticketDetails,
+        user: user,
+        assignedUser: assignedUserId
+          ? ({ id: assignedUserId } as User)
+          : undefined,
         images: images.map((image) =>
           this.ticketImageRepository.create({ url: image }),
         ),
       });
 
-      const dataTicket = await this.ticketRepository.save({ ...ticket, user });
+      const dataTicket = await this.ticketRepository.save(ticket);
 
-      const { user: dataUser, ...restData } = dataTicket;
-      return { ...restData, userId: dataUser.id };
+      return this.findOnePlain(dataTicket.id);
     } catch (error) {
       this.handleDbExeptions(error);
     }

@@ -3,6 +3,7 @@ import {
   IsEnum,
   IsOptional,
   IsString,
+  IsUUID,
   MinLength,
 } from 'class-validator';
 
@@ -22,6 +23,10 @@ export class CreateTicketDto {
 
   @IsEnum(ValidPriority)
   priority!: ValidPriority;
+
+  @IsUUID()
+  @IsOptional()
+  assignedUserId?: string;
 
   @IsString({ each: true })
   @IsArray()
