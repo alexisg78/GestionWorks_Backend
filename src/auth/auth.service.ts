@@ -37,12 +37,7 @@ export class AuthService {
 
       const saveUser = await this.userRepository.save(user);
 
-      const { password: _, ...restUser } = saveUser;
-
-      return {
-        ...restUser,
-        token: this.getJwt({ id: restUser.id }),
-      };
+      return this.buildAuthResponse(saveUser);
     } catch (error) {
       this.handleDbErrors(error);
     }
