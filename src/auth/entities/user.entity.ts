@@ -1,51 +1,52 @@
-import { Ticket } from "src/tickets/entities/ticket.entity";
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn  } from "typeorm";
-
+import { Ticket } from 'src/tickets/entities/ticket.entity';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('users')
 export class User {
-
   @PrimaryGeneratedColumn('uuid')
-  id: string;
-  
-  @Column('text', {
-    unique: true
-  })
-  email: string;
+  id!: string;
 
   @Column('text', {
-    select: false
+    unique: true,
   })
-  password: string;
+  email!: string;
+
+  @Column('text', {
+    select: false,
+  })
+  password!: string;
 
   @Column('text')
-  fullName: string;
+  fullName!: string;
 
   @Column('bool', {
-    default: true
+    default: true,
   })
-  isActive: boolean;
-  
+  isActive!: boolean;
+
   @Column('text', {
     array: true,
-    default: ['user']
+    default: ['user'],
   })
-  roles: string[];
+  roles!: string[];
 
-  @OneToMany(
-    () => Ticket,
-    (ticket) => ticket.user
-  )
-  tickets: Ticket[]
+  @OneToMany(() => Ticket, (ticket) => ticket.user)
+  tickets?: Ticket[];
 
   @BeforeInsert()
-  chekFieldBeforeInsert(){
+  chekFieldBeforeInsert() {
     this.email = this.email.toLowerCase().trim();
   }
 
   @BeforeUpdate()
-  chekFieldBeforeUpdate(){
+  chekFieldBeforeUpdate() {
     this.chekFieldBeforeInsert();
   }
-
 }
