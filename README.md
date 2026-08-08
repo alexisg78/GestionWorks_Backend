@@ -2,7 +2,7 @@
 
 Frontend: Angular 21 · Backend: NestJS · Base de datos: PostgreSQL
 
-API RESTful para la administración y seguimiento de tickets de soporte.
+API RESTful para la gestión de incidencias y servicios.
 
 Este proyecto forma parte de **GestionWorks**, una iniciativa personal orientada a desarrollar una aplicación Full Stack aplicando buenas prácticas de arquitectura, diseño de APIs y desarrollo backend con **NestJS**.
 
