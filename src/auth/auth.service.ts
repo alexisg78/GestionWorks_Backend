@@ -15,7 +15,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { promises } from 'dns';
 import { AuthResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
@@ -91,7 +90,7 @@ export class AuthService {
 
   async checkAuthStatus(user: User) {
     return {
-      ...user,
+      user,
       token: this.getJwt({ id: user.id }),
     };
   }
@@ -103,8 +102,6 @@ export class AuthService {
 
   private handleDbErrors(error: any): never {
     if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    // console.log(error);
 
     throw new InternalServerErrorException('Please check server logs');
   }
