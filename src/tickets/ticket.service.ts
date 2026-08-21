@@ -19,6 +19,7 @@ import { ChangePriorityDto } from './dto/changePriority.dto';
 import { Ticket } from './entities/ticket.entity';
 import { TicketImage } from './entities/ticket-Image.entity';
 import { User } from 'src/auth/entities/user.entity';
+import { TicketResponseDto } from './dto/TicketResponse.dto';
 
 @Injectable()
 export class TicketService {
@@ -63,17 +64,25 @@ export class TicketService {
       skip: offset,
       relations: {
         images: true,
-        user: true,
+        createdBy: true,
         assignedUser: true,
       },
     });
 
-    return tickets.map((ticket) => ({
-      ...ticket,
-      user: ticket.user?.id ?? null,
-      assignedUser: ticket.assignedUser?.id ?? null,
-      images: ticket.images?.map((img) => img.url),
-    }));
+    return tickets.map((ticket) => this.toPlainTicket(ticket));
+  }
+
+  private toPlainTicket(ticket: Ticket): TicketResponseDto {
+    return {
+      id: ticket.id,
+      title: ticket.title,
+      detail: ticket.detail,
+      status: ticket.status,
+      priority: ticket.priority,
+      createdById: ticket.createdBy.id,
+      assignedUserId: ticket.assignedUser?.id ?? null,
+      images: ticket.images?.map((img) => img.url) ?? [],
+    };
   }
 
   async findOne(term: string) {
@@ -82,7 +91,7 @@ export class TicketService {
     if (isUUID(term)) {
       ticket = await this.ticketRepository.findOne({
         where: { id: term },
-        relations: { images: true, user: true, assignedUser: true },
+        relations: { images: true, createdBy: true, assignedUser: true },
       });
     } else {
       const queryBuilder = this.ticketRepository.createQueryBuilder('ticket');
@@ -92,6 +101,7 @@ export class TicketService {
           title: term.toLowerCase(),
         })
         .leftJoinAndSelect('ticket.images', 'ticketImages')
+        .leftJoinAndSelect('ticket.createdBy', 'createdBy')
         .leftJoinAndSelect('ticket.assignedUser', 'assignedUser')
         .getOne();
     }
@@ -102,27 +112,9 @@ export class TicketService {
   }
 
   async findOnePlain(term: string) {
-    const {
-      images = [],
-      user,
-      assignedUser,
-      ...restTicket
-    } = await this.findOne(term);
+    const ticket = await this.findOne(term);
 
-    // Función para limpiar los datos del usuario de forma segura
-    const sanitizeUser = (userEntity?: User | null) => {
-      if (!userEntity) return null;
-
-      const { isActive, password, roles, tickets, ...safeUser } = userEntity;
-      return safeUser;
-    };
-
-    return {
-      ...restTicket,
-      user: sanitizeUser(user), // Siempre debería existir, pero lo pasamos por seguridad
-      assignedUser: sanitizeUser(assignedUser),
-      images: images.map((img) => img.url),
-    };
+    return this.toPlainTicket(ticket);
   }
 
   async update(id: string, updateTicketDto: UpdateTicketDto) {
