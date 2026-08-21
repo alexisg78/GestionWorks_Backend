@@ -37,7 +37,7 @@ export class User {
   })
   roles!: string[];
 
-  @OneToMany(() => Ticket, (ticket) => ticket.user)
+  @OneToMany(() => Ticket, (ticket) => ticket.createdBy)
   tickets?: Ticket[];
 
   @BeforeInsert()

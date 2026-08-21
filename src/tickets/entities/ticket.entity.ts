@@ -42,11 +42,12 @@ export class Ticket {
   priority!: ValidPriority;
 
   @ManyToOne(() => User, (user) => user.tickets, { nullable: false })
-  user?: User;
+  @JoinColumn({ name: 'created_by_id' })
+  createdBy!: User;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'assigned_user_id' })
-  assignedUser?: User;
+  assignedUser!: User | null;
 
   // images
   @OneToMany(() => TicketImage, (ticketImage) => ticketImage.ticket, {

@@ -40,10 +40,8 @@ export class TicketService {
 
       const ticket = this.ticketRepository.create({
         ...ticketDetails,
-        user: user,
-        assignedUser: assignedUserId
-          ? ({ id: assignedUserId } as User)
-          : undefined,
+        createdBy: user,
+        assignedUser: assignedUserId ? ({ id: assignedUserId } as User) : null,
         images: images.map((image) =>
           this.ticketImageRepository.create({ url: image }),
         ),
