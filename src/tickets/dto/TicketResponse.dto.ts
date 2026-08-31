@@ -18,11 +18,15 @@ export class TicketResponseDto {
   @IsEnum(ValidPriority)
   priority!: ValidPriority;
 
-  @IsUUID()
-  createdById!: string;
+  createdBy!: {
+    id: string;
+    fullName: string;
+  };
 
-  @IsUUID()
-  assignedUserId!: string | null;
+  assignedUser!: {
+    id: string;
+    fullName: string;
+  } | null;
 
   @IsArray()
   @IsString({ each: true })

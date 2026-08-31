@@ -79,8 +79,19 @@ export class TicketService {
       detail: ticket.detail,
       status: ticket.status,
       priority: ticket.priority,
-      createdById: ticket.createdBy.id,
-      assignedUserId: ticket.assignedUser?.id ?? null,
+
+      createdBy: {
+        id: ticket.createdBy.id,
+        fullName: ticket.createdBy.fullName,
+      },
+
+      assignedUser: ticket.assignedUser
+        ? {
+            id: ticket.assignedUser.id,
+            fullName: ticket.assignedUser.fullName,
+          }
+        : null,
+
       images: ticket.images?.map((img) => img.url) ?? [],
     };
   }
