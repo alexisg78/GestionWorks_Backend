@@ -1,10 +1,12 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { TicketImage } from './ticket-Image.entity';
 
@@ -49,10 +51,19 @@ export class Ticket {
   @JoinColumn({ name: 'assigned_user_id' })
   assignedUser!: User | null;
 
-  // images
   @OneToMany(() => TicketImage, (ticketImage) => ticketImage.ticket, {
     cascade: true,
     eager: true,
   })
   images?: TicketImage[];
+
+  @CreateDateColumn({
+    type: 'timestamptz',
+  })
+  createdAt!: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamptz',
+  })
+  updatedAt!: Date;
 }

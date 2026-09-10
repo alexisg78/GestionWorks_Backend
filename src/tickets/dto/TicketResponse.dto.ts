@@ -31,4 +31,7 @@ export class TicketResponseDto {
   @IsArray()
   @IsString({ each: true })
   images!: string[];
+
+  createdAt!: Date;
+  updatedAt!: Date;
 }

@@ -19,7 +19,7 @@ import { ChangePriorityDto } from './dto/changePriority.dto';
 import { Ticket } from './entities/ticket.entity';
 import { TicketImage } from './entities/ticket-Image.entity';
 import { User } from 'src/auth/entities/user.entity';
-import { TicketResponseDto } from './dto/TicketResponse.dto';
+import { TicketResponseDto } from './dto/ticketResponse.dto';
 
 @Injectable()
 export class TicketService {
@@ -93,6 +93,8 @@ export class TicketService {
         : null,
 
       images: ticket.images?.map((img) => img.url) ?? [],
+      createdAt: ticket.createdAt,
+      updatedAt: ticket.updatedAt,
     };
   }
 
