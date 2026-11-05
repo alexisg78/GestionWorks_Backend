@@ -69,7 +69,13 @@ export class TicketService {
       },
     });
 
-    return tickets.map((ticket) => this.toPlainTicket(ticket));
+    const totalTickets = await this.ticketRepository.count();
+
+    return {
+      count: totalTickets,
+      pages: Math.ceil(totalTickets / limit),
+      tickets: tickets.map((ticket) => this.toPlainTicket(ticket)),
+    };
   }
 
   private toPlainTicket(ticket: Ticket): TicketResponseDto {
